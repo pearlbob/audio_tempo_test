@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title></title>
+  <link rel="stylesheet" href="css/style.css">
+  <meta name="description" content="">
+
+  <meta property="og:title" content="">
+  <meta property="og:type" content="">
+  <meta property="og:url" content="">
+  <meta property="og:image" content="">
+
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.png">
+
+  <!--  <link rel="manifest" href="site.webmanifest">-->
+  <meta name="theme-color" content="#fafafa">
+
+  <script src="js/AudioFilePlayer.js" type="application/javascript">
+  </script>
+
+  <script>
+
+    const filePath = "audio/hihat1.flac";
+    let audioFilePlayer = null;// avoid "The AudioContext was not allowed to start" error
+
+    async function testAudio() {
+      if (audioFilePlayer === null) {
+        audioFilePlayer = new AudioFilePlayer();
+        console.log(filePath + ": " + audioFilePlayer.bufferFile(filePath));
+        await new Promise(r => setTimeout(r, 50));  //  give the audio some setup time
+      }
+      console.log("audio offset: " + audioFilePlayer.test());
+
+      const tempoPeriod = 0.5;
+      let drumCount = 1;
+      let firstDrumTempoT = audioFilePlayer.getCurrentTime();
+      let lastDrumTempoT = firstDrumTempoT + drumCount * tempoPeriod;
+      while (true) {
+        let time = audioFilePlayer.getCurrentTime();
+        if (time > lastDrumTempoT) {
+          drumCount++;
+          let nextTempoT = firstDrumTempoT + drumCount * tempoPeriod;
+          // console.log("currentTime: nextTempoT:" + nextTempoT);
+          lastDrumTempoT = audioFilePlayer.getCurrentTime() + tempoPeriod;
+          audioFilePlayer.play(filePath, nextTempoT, 0.2, 1.0);
+          lastDrumTempoT = nextTempoT;
+        }
+        await new Promise(r => setTimeout(r, 17));
+      }
+    }
+  </script>
+
+</head>
+
+<body>
+
+<!-- Add your site or application content here -->
+<p>Hello world! This is HTML5 Boilerplate.</p>
+<script src="js/app.js"></script>
+<button type="submit" onclick="testAudio()"
+        title="test the audio"
+>Test audio
+</button>
+
+</body>
+
+</html>
